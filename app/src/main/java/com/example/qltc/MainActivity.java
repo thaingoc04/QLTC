@@ -1,11 +1,18 @@
 package com.example.qltc;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -22,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnAdd;
     ArrayList<ThuChi> arrayList;
     Adapter adapter;
-
+    int Id;
     SQLite mysql = new SQLite(this, "QLTC", null, 1);
 
 
@@ -69,7 +76,69 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+        lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int i, long id) {
+                Id = i;
+                registerForContextMenu(view);
+                //openContextMenu(view); // add this line to open context menu
+                return false;
 
+            }
+        });
+
+    }
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getMenuInflater().inflate(R.menu.menu, menu);
+    }
+
+    public void thongBao(String s) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Thông báo");
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setMessage(s);
+        builder.setNegativeButton("Có", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //Toast.makeText(MainActivity.this,String.valueOf(i),Toast.LENGTH_SHORT).show();
+                ThuChi contactDelete = arrayList.get(Id);
+                //Toast.makeText(MainActivity.this,String.valueOf(contactDelete.getId()),Toast.LENGTH_SHORT).show();
+                mysql.deleteContact(contactDelete.getId());
+                arrayList = mysql.getAllContact();
+                adapter = new Adapter(MainActivity.this, arrayList);
+                lstView.setAdapter(adapter);
+                int soDu=0;
+                for(ThuChi thuChi: arrayList){
+                    if(thuChi.isThuChi()==1)
+                        soDu+= thuChi.getCost();
+                    else
+                        soDu-= thuChi.getCost();
+                }
+                txtDu.setText("Số dư: "+String.valueOf(soDu));
+            }
+        });
+        builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.show();
+    }
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.mnuDelete: {
+                ThuChi thuChi = arrayList.get(Id);
+                thongBao( String.format("Bạn có chắc muốn xóa khoản %d\nNgày tháng: %s\nKhoản thu: %s\nSố tiền: %d",
+                        thuChi.isThuChi(), thuChi.getDate(), thuChi.getName(), thuChi.getCost()));
+                break;
+
+            }
+
+        }
+        return super.onContextItemSelected(item);
     }
     private boolean isOnline(Context context){
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);
