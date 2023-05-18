@@ -15,8 +15,26 @@
 
     <ListView
         android:id="@+id/lstContact"
-        android:layout_width="407dp"
-        android:layout_height="579dp"
+        android:layout_width="410dp"
+        android:layout_height="576dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDu" />
+
+    <Button
+        android:id="@+id/btnAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="32dp"
+        android:text="Add"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lstContact" />
+
+    <TextView
+        android:id="@+id/txtDu"
+        android:layout_width="413dp"
+        android:layout_height="41dp"
+        android:text="TextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtSearch" />
 </androidx.constraintlayout.widget.ConstraintLayout>
